@@ -79,7 +79,7 @@ def fetch_schedule_ending_date(school_id):
 		return dates[-1]
 
 
-def fetch_subscribed_school_ids(guild_id):
+def fetch_subscribed_school_ids(guild_id = None):
 	# create a new session object to interact with the database
 	session = Session()
 
