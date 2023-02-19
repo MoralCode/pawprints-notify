@@ -48,7 +48,9 @@ def fetch_subscribed_school_ids(guild_id):
 	session = Session()
 
 	# retrieve the school ID for a given guild ID
-	mappings = session.query(GuildToSchool).filter_by(guild_id=guild_id)
+	mappings = session.query(GuildToSchool)
+	if guild_id:
+		mappings = mappings.filter_by(guild_id=guild_id)
 
 	# close the session when done
 	session.close()
