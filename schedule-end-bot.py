@@ -7,11 +7,15 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import aiocron
+import logging
 
 from database import Session, GuildToSchool
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 # client = discord.Client()
 intents = discord.Intents.default()
@@ -80,7 +84,7 @@ async def unsubscribe(ctx, subscription_name):
 	session = Session()
 
 	result = session.query(GuildToSchool).filter_by(subscription_name=subscription_name).first()
-	print(result)
+	logger.info(result)
 	session.delete(result)
 	session.commit()
 	# close the session when done
@@ -92,7 +96,7 @@ def condense_subscription_item(item: GuildToSchool):
 	if item:
 		return f'{item.subscription_name} ({item.school_id}) will notify {item.notification_threshold} days in advance of schedules ending'
 	else:
-		print(f'No school ID found for guild ID {item.guild_id}.')
+		logger.info(f'No school ID found for guild ID {item.guild_id}.')
 		return ""
 
 
@@ -138,7 +142,7 @@ async def check(ctx):
 @aiocron.crontab(os.getenv("CRON_SCHEDULE") or '0 8 * * *')
 async def post_schedule_update_notifications():
 	session = Session()
-
+	logger.info("running cronjob")
 	
 	subscriptions = fetch_subscribed_school_ids()
 
@@ -156,7 +160,7 @@ async def post_schedule_update_notifications():
 				f"**Schedules for {subscription.subscription_name} ({subscription.school_id}) will expire in {expires_in} days ({expires})**"
 				)
 		else:
-			print(f"no schedule notifications needed for {subscription.subscription_name} ({subscription.school_id})")
+			logger.info(f"no schedule notifications needed for {subscription.subscription_name} ({subscription.school_id})")
 
 
 	# close the session when done
