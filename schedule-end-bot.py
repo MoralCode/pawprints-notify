@@ -90,6 +90,28 @@ async def _list(ctx):
 	session.close()
 
 	await ctx.send("\n".join([condense_subscription_item(mapping) for mapping in mappings]))
+	
+
+@bot.command()
+@commands.has_permissions(administrator = True)
+async def check(ctx):
+	session = Session()
+
+	mappings = fetch_subscribed_school_ids(ctx.guild.id)
+
+	for mapping in mappings:
+		expires = fetch_schedule_ending_date(mapping.school_id)
+		expires_in = days_to(expires)
+		message = f"Schedules for {mapping.subscription_name} ({mapping.school_id}) will expire in {expires_in} days ({expires})"
+		
+		if expires_in < mapping.notification_threshold:
+			message = f"**{message}**"
+
+		await ctx.send(message)
+
+
+	# close the session when done
+	session.close()
 
 bot.run(TOKEN)
 
