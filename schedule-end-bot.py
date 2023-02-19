@@ -68,7 +68,7 @@ async def subscribe(ctx, school_id, notification_threshold, subscription_name=""
 	session.add(GuildToSchool(guild_id=ctx.guild.id, school_id=school_id, notification_threshold=int(notification_threshold), subscription_name=subscription_name, channel_id = ctx.channel.id ))
 	session.commit()
 
-	await ctx.send(f'Subscribed to {school_id} ({subscription_name}) with notifications {str(notification_threshold)} days in advance')
+	await ctx.send(f'Subscribed to {school_id} ({subscription_name}) with notifications {str(notification_threshold)} days in advance in the current channel.')
 
 
 @bot.command()
