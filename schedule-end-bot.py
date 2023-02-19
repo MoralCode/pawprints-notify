@@ -24,6 +24,10 @@ def days_between(d1, d2):
     d2 = datetime.strptime(d2, "%Y-%m-%d")
     return (d2 - d1).days
 
+def days_to(date):
+	d1 = datetime.strptime(date, "%Y-%m-%d")
+	return (d1 - datetime.today()).days
+
 
 def fetch_schedule_ending_date(school_id):
 	response = requests.get("https://api.classclock.app/v0/bellschedules/" + school_id, headers={"Accept": "application/json"})
