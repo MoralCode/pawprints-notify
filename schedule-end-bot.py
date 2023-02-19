@@ -3,9 +3,10 @@ import requests
 
 import os
 
-from discord import commands
+from discord.ext import commands
 from dotenv import load_dotenv
 
+from database import Session, GuildToSchool
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
