@@ -4,9 +4,8 @@ import requests
 import os
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
-import aiocron
 import logging
 
 from database import Session, GuildToSchool
@@ -22,6 +21,39 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='/', intents=intents)
+
+@tasks.loop(hours=24)
+async def post_schedule_update_notifications():
+	session = Session()
+	logger.info("running cronjob")
+	
+	subscriptions = fetch_subscribed_school_ids()
+	for subscription in subscriptions:
+
+		expires = fetch_schedule_ending_date(subscription.school_id)
+		expires_in = days_to(expires)
+
+		if expires_in < subscription.notification_threshold:
+			# Make sure your guild cache is ready so the channel can be found via get_channel
+			#https://stackoverflow.com/a/66715493/
+			await bot.wait_until_ready()
+			message_channel = bot.get_channel(subscription.channel_id)
+			await message_channel.send(
+				f"**Schedules for {subscription.subscription_name} ({subscription.school_id}) will expire in {expires_in} days ({expires})**"
+				)
+		else:
+			logger.info(f"no schedule notifications needed for {subscription.subscription_name} ({subscription.school_id})")
+
+
+	# close the session when done
+	session.close()
+
+
+@post_schedule_update_notifications.before_loop
+async def before():
+    await bot.wait_until_ready()
+    logger.info("Finished waiting - bot ready")
+
 
 # http://stackoverflow.com/questions/8419564/ddg#8419655
 def days_between(d1, d2):
@@ -59,6 +91,13 @@ def fetch_subscribed_school_ids(guild_id):
 	# close the session when done
 	session.close()
 	return mappings
+
+
+
+@bot.event
+async def on_ready():
+	logger.info(f'{bot.user} has connected to Discord!')
+	post_schedule_update_notifications.start()
 
 
 @bot.command()
@@ -136,40 +175,6 @@ async def check(ctx):
 
 	# close the session when done
 	session.close()
-
-
-# post information about any schedules that are about to expire once per day
-@aiocron.crontab(os.getenv("CRON_SCHEDULE") or '0 8 * * *')
-async def post_schedule_update_notifications():
-	session = Session()
-	logger.info("running cronjob")
-	
-	subscriptions = fetch_subscribed_school_ids()
-
-	for subscription in subscriptions:
-
-		expires = fetch_schedule_ending_date(subscription.school_id)
-		expires_in = days_to(expires)
-
-		if expires_in < subscription.notification_threshold:
-			# Make sure your guild cache is ready so the channel can be found via get_channel
-			#https://stackoverflow.com/a/66715493/
-			await bot.wait_until_ready()
-			message_channel = bot.get_channel(subscription.channel_id)
-			await message_channel.send(
-				f"**Schedules for {subscription.subscription_name} ({subscription.school_id}) will expire in {expires_in} days ({expires})**"
-				)
-		else:
-			logger.info(f"no schedule notifications needed for {subscription.subscription_name} ({subscription.school_id})")
-
-
-	# close the session when done
-	session.close()
-
-	# channel = client.get_channel(int(os.getenv("CHANNEL")))
-	# count = await get_current_velma_count()
-
-	await channel.send(generate_count_message(count, get_lastupdate_string(time.time())))
 
 bot.run(TOKEN)
 

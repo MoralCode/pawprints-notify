@@ -8,7 +8,6 @@ requests = "*"
 "discord.py" = "*"
 python-dotenv = "*"
 sqlalchemy = "*"
-aiocron = "*"
 
 [dev-packages]
 
