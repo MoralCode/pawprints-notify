@@ -11,16 +11,16 @@ def days_between(d1, d2):
 
 
 def fetch_schedule_ending_date(school_id):
-	response = requests.get("https://api.classclock.app/v0/bellschedules/" + school_id, headers={"Accept:", "application/json"})
+	response = requests.get("https://api.classclock.app/v0/bellschedules/" + school_id, headers={"Accept": "application/json"})
 	if response.status_code == 200:
 		response = response.json()
 		dates = []
 		data = response.get("data")
 		for schedule in data:
-			dates.extend(schedule.dates)
+			dates.extend(schedule.get("dates"))
 
 		dates.sort()
-		print(dates)
+		return dates[-1]
 
 
 
