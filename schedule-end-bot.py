@@ -133,5 +133,39 @@ async def check(ctx):
 	# close the session when done
 	session.close()
 
+
+# post information about any schedules that are about to expire once per day
+@aiocron.crontab(os.getenv("CRON_SCHEDULE") or '0 8 * * *')
+async def post_schedule_update_notifications():
+	session = Session()
+
+	
+	subscriptions = fetch_subscribed_school_ids()
+
+	for subscription in subscriptions:
+
+		expires = fetch_schedule_ending_date(subscription.school_id)
+		expires_in = days_to(expires)
+
+		if expires_in < subscription.notification_threshold:
+			# Make sure your guild cache is ready so the channel can be found via get_channel
+			#https://stackoverflow.com/a/66715493/
+			await bot.wait_until_ready()
+			message_channel = bot.get_channel(subscription.channel_id)
+			await message_channel.send(
+				f"**Schedules for {subscription.subscription_name} ({subscription.school_id}) will expire in {expires_in} days ({expires})**"
+				)
+		else:
+			print(f"no schedule notifications needed for {subscription.subscription_name} ({subscription.school_id})")
+
+
+	# close the session when done
+	session.close()
+
+	# channel = client.get_channel(int(os.getenv("CHANNEL")))
+	# count = await get_current_velma_count()
+
+	await channel.send(generate_count_message(count, get_lastupdate_string(time.time())))
+
 bot.run(TOKEN)
 
