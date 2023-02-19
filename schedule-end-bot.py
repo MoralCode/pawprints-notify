@@ -37,6 +37,17 @@ def fetch_schedule_ending_date(school_id):
 		return dates[-1]
 
 
+def fetch_subscribed_school_ids(guild_id):
+	# create a new session object to interact with the database
+	session = Session()
+
+	# retrieve the school ID for a given guild ID
+	mappings = session.query(GuildToSchool).filter_by(guild_id=guild_id)
+
+	# close the session when done
+	session.close()
+	return mappings
+
 
 @bot.command()
 @commands.has_permissions(administrator = True)
@@ -54,22 +65,26 @@ async def subscribe(ctx, school_id, notification_threshold, subscription_name=""
 
 	await ctx.send(f'Subscribed to {school_id} ({subscription_name}) with notifications {str(notification_threshold)} days in advance')
 
+def condense_subscription_item(item: GuildToSchool):
+	if item:
+		return f'{item.subscription_name} ({item.school_id}) will notify {item.notification_threshold} days in advance of schedules ending'
+	else:
+		print(f'No school ID found for guild ID {item.guild_id}.')
+		return ""
+
 
 @bot.command(name='list')
 @commands.has_permissions(administrator = True)
 async def _list(ctx):
 	session = Session()
 
-	mappings = session.query(GuildToSchool).filter_by(guild_id=ctx.guild.id)
-	for mapping in mappings:
-		if mapping:
-			print(f'The school ID for guild ID {guild_id} is {mapping.school_id}.')
-		else:
-			print(f'No school ID found for guild ID {guild_id}.')
+	mappings = fetch_subscribed_school_ids(ctx.guild.id)
+	
 
 	# close the session when done
 	session.close()
 
-	await ctx.send(f'Done')
-bot.add_command(_list)
-bot.add_command(subscribe)
+	await ctx.send("\n".join([condense_subscription_item(mapping) for mapping in mappings]))
+
+bot.run(TOKEN)
+
