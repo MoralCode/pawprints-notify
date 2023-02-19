@@ -103,8 +103,10 @@ async def _list(ctx):
 
 	# close the session when done
 	session.close()
-
-	await ctx.send("\n".join([condense_subscription_item(mapping) for mapping in mappings]))
+	if mappings.count() > 0:
+		await ctx.send("\n".join([condense_subscription_item(mapping) for mapping in mappings]))
+	else:
+		await ctx.send("No subscriptions")
 	
 
 @bot.command()
