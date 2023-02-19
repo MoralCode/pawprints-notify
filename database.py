@@ -9,9 +9,13 @@ Base = declarative_base()
 
 # define the mapping table schema using SQLAlchemy's declarative syntax
 class GuildToSchool(Base):
-    __tablename__ = 'guild_to_school'
-    guild_id = Column(String, primary_key=True)
-    school_id = Column(String, primary_key=True)
+	__tablename__ = 'guild_to_school'
+	guild_id = Column(Integer, primary_key=True)
+	school_id = Column(String, primary_key=True)
+	channel_id = Column(Integer)
+	notification_threshold = Column(Integer)
+	subscription_name = Column(String)
+
 
 # create the table in the database if it doesn't already exist
 Base.metadata.create_all(engine)
