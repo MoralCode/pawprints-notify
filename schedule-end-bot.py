@@ -46,6 +46,30 @@ async def permission(ctx):
 
 @bot.command()
 @commands.has_permissions(administrator = True)
-async def subscribea(ctx, arg1, arg2):
-    await ctx.send(f'You passed {arg1} and {arg2}')
-bot.add_command(test)
+async def subscribe(ctx, school_id, notification_threshold, subscription_name=""):
+	session = Session()
+
+	session.add(GuildToSchool(guild_id=ctx.guild.id, school_id=school_id, notification_threshold=int(notification_threshold), subscription_name=subscription_name, channel_id = ctx.channel.id ))
+	session.commit()
+
+	await ctx.send(f'Subscribed to {school_id} ({subscription_name}) with notifications {str(notification_threshold)} days in advance')
+
+
+@bot.command(name='list')
+@commands.has_permissions(administrator = True)
+async def _list(ctx):
+	session = Session()
+
+	mappings = session.query(GuildToSchool).filter_by(guild_id=ctx.guild.id)
+	for mapping in mappings:
+		if mapping:
+			print(f'The school ID for guild ID {guild_id} is {mapping.school_id}.')
+		else:
+			print(f'No school ID found for guild ID {guild_id}.')
+
+	# close the session when done
+	session.close()
+
+	await ctx.send(f'Done')
+bot.add_command(_list)
+bot.add_command(subscribe)
