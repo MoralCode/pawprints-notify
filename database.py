@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # create an SQLite database file and connect to it using SQLAlchemy
-engine = create_engine('sqlite:///discord_school_mapping.db')
+engine = create_engine('sqlite:///database/discord_school_mapping.db')
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
