@@ -1,7 +1,20 @@
 from datetime import datetime
 import requests
 
+import os
 
+from discord import commands
+from dotenv import load_dotenv
+
+
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
+
+# client = discord.Client()
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix='/', intents=intents)
 
 # http://stackoverflow.com/questions/8419564/ddg#8419655
 def days_between(d1, d2):
@@ -24,4 +37,14 @@ def fetch_schedule_ending_date(school_id):
 
 
 
-fetch_schedule_ending_date("522c21a0ce6011e9b6830242ac1f0874")
+@bot.command()
+@commands.has_permissions(administrator = True)
+async def permission(ctx):
+    await ctx.send('You have administrator access...')
+
+
+@bot.command()
+@commands.has_permissions(administrator = True)
+async def subscribea(ctx, arg1, arg2):
+    await ctx.send(f'You passed {arg1} and {arg2}')
+bot.add_command(test)
