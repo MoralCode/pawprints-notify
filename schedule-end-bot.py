@@ -8,6 +8,8 @@ from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import logging
 
+from bs4 import BeautifulSoup
+
 from database import Session, GuildToSchool
 
 load_dotenv()
@@ -49,6 +51,35 @@ async def post_schedule_update_notifications():
 	session.close()
 
 
+@tasks.loop(minutes=1)
+async def post_url_alerts():
+	session = Session()
+	# logger.info("running cronjob")
+	
+	subscriptions = fetch_watched_urls()
+	for subscription in subscriptions:
+		
+		if subscription.url_type == "kentico":
+			alert_text = fetch_kentico_alert_text(subscription.url)
+			# https://www.losdschools.org/cms/Tools/OnScreenAlerts/UserControls/OnScreenAlertDialogListWrapper.aspx?SiteID=16
+			if alert_text:
+				# Make sure your guild cache is ready so the channel can be found via get_channel
+				#https://stackoverflow.com/a/66715493/
+				await bot.wait_until_ready()
+				message_channel = bot.get_channel(subscription.channel_id)
+				await message_channel.send(
+					f"**New Alert for {subscription.subscription_name}:**\n\n{alert_text}"
+					)
+			else:
+				logger.info(f"no schedule notifications needed for {subscription.subscription_name} ({subscription.school_id})")
+
+
+	# close the session when done
+	session.close()
+	
+
+
+
 @post_schedule_update_notifications.before_loop
 async def before():
     await bot.wait_until_ready()
@@ -78,6 +109,18 @@ def fetch_schedule_ending_date(school_id):
 		dates.sort()
 		return dates[-1]
 
+def fetch_kentico_alert_text(url):
+	response = requests.get(url)
+	if response.status_code == 200:
+		response_text = response.text()
+		
+		soup = BeautifulSoup(response_text, 'html.parser')
+
+		alert_content = soup.find(_id="onscreenalertdialoglist")
+
+		if alert_content is not None:
+			return alert_content.text.strip()
+
 
 def fetch_subscribed_school_ids(guild_id = None):
 	# create a new session object to interact with the database
@@ -92,12 +135,26 @@ def fetch_subscribed_school_ids(guild_id = None):
 	session.close()
 	return mappings
 
+def fetch_watched_urls(guild_id = None):
+	# create a new session object to interact with the database
+	session = Session()
+
+	# retrieve the school ID for a given guild ID
+	mappings = session.query(WatchedURLs)
+	if guild_id:
+		mappings = mappings.filter_by(guild_id=guild_id)
+
+	# close the session when done
+	session.close()
+	return mappings
+
 
 
 @bot.event
 async def on_ready():
 	logger.info(f'{bot.user} has connected to Discord!')
 	post_schedule_update_notifications.start()
+	post_url_alerts.start()
 
 
 @bot.command()
