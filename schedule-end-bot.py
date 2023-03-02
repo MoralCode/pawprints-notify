@@ -176,6 +176,31 @@ async def subscribe(ctx, school_id, notification_threshold, subscription_name=""
 
 @bot.command()
 @commands.has_permissions(administrator = True)
+async def subscribe_alert(ctx, url, url_type, subscription_name=""):
+	session = Session()
+
+	session.add(WatchedURLs(url=url, url_type=url_type, subscription_name=subscription_name, channel_id = ctx.channel.id ))
+	session.commit()
+
+	await ctx.send(f'Subscribed to changes for url "{url}" of type {url_type} ({subscription_name}) in the current channel.')
+
+@bot.command()
+@commands.has_permissions(administrator = True)
+async def unsubscribe_alert(ctx, subscription_name):
+	session = Session()
+
+	result = session.query(WatchedURLs).filter_by(subscription_name=subscription_name).first()
+	logger.info(result)
+	session.delete(result)
+	session.commit()
+	# close the session when done
+	session.close()
+
+	await ctx.send(f'Deleted {result.url} ({result.subscription_name}) subscription')
+
+
+@bot.command()
+@commands.has_permissions(administrator = True)
 async def unsubscribe(ctx, subscription_name):
 	session = Session()
 
