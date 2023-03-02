@@ -19,10 +19,9 @@ class GuildToSchool(Base):
 
 class WatchedURLs(Base):
 	__tablename__ = 'watched_urls'
-	guild_id = Column(Integer, primary_key=True)
+	channel_id = Column(Integer, primary_key=True)
 	url = Column(String, primary_key=True)
 	url_type = Column(String, nullable=False)
-	channel_id = Column(Integer)
 	subscription_name = Column(String)
 
 if __name__ == "__main__":
