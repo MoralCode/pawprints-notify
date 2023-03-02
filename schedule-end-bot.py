@@ -51,7 +51,7 @@ async def post_schedule_update_notifications():
 	session.close()
 
 
-@tasks.loop(minutes=1)
+@tasks.loop(minutes=15)
 async def post_url_alerts():
 	session = Session()
 	# logger.info("running cronjob")
