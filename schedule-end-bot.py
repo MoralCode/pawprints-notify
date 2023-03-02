@@ -10,7 +10,7 @@ import logging
 
 from bs4 import BeautifulSoup
 
-from database import Session, GuildToSchool
+from database import Session, GuildToSchool, WatchedURLs
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
