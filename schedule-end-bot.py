@@ -112,7 +112,7 @@ def fetch_schedule_ending_date(school_id):
 def fetch_kentico_alert_text(url):
 	response = requests.get(url)
 	if response.status_code == 200:
-		response_text = response.text()
+		response_text = response.text
 		
 		soup = BeautifulSoup(response_text, 'html.parser')
 
