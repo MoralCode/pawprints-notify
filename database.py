@@ -17,6 +17,13 @@ class GuildToSchool(Base):
 	subscription_name = Column(String)
 
 
+class WatchedURLs(Base):
+	__tablename__ = 'watched_urls'
+	guild_id = Column(Integer, primary_key=True)
+	url = Column(String, primary_key=True)
+	url_type = Column(String, nullable=False)
+	subscription_name = Column(String)
+
 # create the table in the database if it doesn't already exist
 Base.metadata.create_all(engine)
 
