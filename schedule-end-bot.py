@@ -71,7 +71,7 @@ async def post_url_alerts():
 					f"**New Alert for {subscription.subscription_name}:**\n\n{alert_text}"
 					)
 			else:
-				logger.info(f"no schedule notifications needed for {subscription.subscription_name} ({subscription.school_id})")
+				logger.info(f"no schedule notifications needed for {subscription.subscription_name}")
 
 
 	# close the session when done
