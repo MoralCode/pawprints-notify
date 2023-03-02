@@ -24,7 +24,8 @@ class WatchedURLs(Base):
 	url_type = Column(String, nullable=False)
 	subscription_name = Column(String)
 
-# create the table in the database if it doesn't already exist
-Base.metadata.create_all(engine)
+if __name__ == "__main__":
+	# create the table in the database if it doesn't already exist
+	Base.metadata.create_all(engine)
 
 
