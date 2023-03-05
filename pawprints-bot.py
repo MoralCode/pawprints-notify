@@ -30,14 +30,14 @@ WEBSOCKET_URL = 'wss://pawprints.rit.edu/ws/'
 
 # Define a coroutine to receive data from the WebSocket feed
 async def receive_data():
-    async with websockets.connect(WEBSOCKET_URL) as websocket:
-        while True:
-            data = await websocket.recv()
-            # Process the data as needed
-            # For example, you could parse the JSON data and extract relevant information
-            # Here, we'll just send the raw data to Discord
+	async with websockets.connect(WEBSOCKET_URL) as websocket:
+		while True:
+			data = await websocket.recv()
+			# Process the data as needed
+			# For example, you could parse the JSON data and extract relevant information
+			# Here, we'll just send the raw data to Discord
 
-            await send_to_discord(data)
+			await send_to_discord(data)
 
 # Define a coroutine to send data to the Discord channel
 async def send_to_discord(data):
