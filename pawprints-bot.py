@@ -26,12 +26,43 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='/', intents=intents)
 
+WEBSOCKET_URL = 'your_websocket_url'
+
+# Define a coroutine to receive data from the WebSocket feed
+async def receive_data():
+    async with websockets.connect(WEBSOCKET_URL) as websocket:
+        while True:
+            data = await websocket.recv()
+            # Process the data as needed
+            # For example, you could parse the JSON data and extract relevant information
+            # Here, we'll just send the raw data to Discord
+
+            await send_to_discord(data)
+
+# Define a coroutine to send data to the Discord channel
+async def send_to_discord(data):
+	subscriptions = fetch_subscribed_channels()
+	for subscription in subscriptions:
+		channel = client.get_channel(subscription.channel_id)
+		await channel.send(data)
 
 @bot.event
 async def on_ready():
 	logger.info(f'{bot.user} has connected to Discord!')
-	
+	await receive_data()
 
+def fetch_subscribed_channels(guild_id = None):
+	# create a new session object to interact with the database
+	session = Session()
+
+	# retrieve the school ID for a given guild ID
+	mappings = session.query(GuildToSchool)
+	if guild_id:
+		mappings = mappings.filter_by(guild_id=guild_id)
+
+	# close the session when done
+	session.close()
+	return mappings
 
 @bot.command()
 @commands.has_permissions(administrator = True)
