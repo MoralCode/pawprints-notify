@@ -8,7 +8,9 @@ from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import logging
 
-from database import Session, GuildToSchool
+from bs4 import BeautifulSoup
+
+from database import Session, GuildToSchool, WatchedURLs
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -49,6 +51,35 @@ async def post_schedule_update_notifications():
 	session.close()
 
 
+@tasks.loop(minutes=15)
+async def post_url_alerts():
+	session = Session()
+	# logger.info("running cronjob")
+	
+	subscriptions = fetch_watched_urls()
+	for subscription in subscriptions:
+		
+		if subscription.url_type == "kentico":
+			alert_text = fetch_kentico_alert_text(subscription.url)
+			# https://www.losdschools.org/cms/Tools/OnScreenAlerts/UserControls/OnScreenAlertDialogListWrapper.aspx?SiteID=16
+			if alert_text:
+				# Make sure your guild cache is ready so the channel can be found via get_channel
+				#https://stackoverflow.com/a/66715493/
+				await bot.wait_until_ready()
+				message_channel = bot.get_channel(subscription.channel_id)
+				await message_channel.send(
+					f"**New Alert for {subscription.subscription_name}:**\n\n{alert_text}"
+					)
+			else:
+				logger.info(f"no schedule notifications needed for {subscription.subscription_name}")
+
+
+	# close the session when done
+	session.close()
+	
+
+
+
 @post_schedule_update_notifications.before_loop
 async def before():
     await bot.wait_until_ready()
@@ -78,6 +109,18 @@ def fetch_schedule_ending_date(school_id):
 		dates.sort()
 		return dates[-1]
 
+def fetch_kentico_alert_text(url):
+	response = requests.get(url)
+	if response.status_code == 200:
+		response_text = response.text
+		
+		soup = BeautifulSoup(response_text, 'html.parser')
+
+		alert_content = soup.find(_id="onscreenalertdialoglist")
+
+		if alert_content is not None:
+			return alert_content.text.strip()
+
 
 def fetch_subscribed_school_ids(guild_id = None):
 	# create a new session object to interact with the database
@@ -92,12 +135,26 @@ def fetch_subscribed_school_ids(guild_id = None):
 	session.close()
 	return mappings
 
+def fetch_watched_urls(guild_id = None):
+	# create a new session object to interact with the database
+	session = Session()
+
+	# retrieve the school ID for a given guild ID
+	mappings = session.query(WatchedURLs)
+	if guild_id:
+		mappings = mappings.filter_by(guild_id=guild_id)
+
+	# close the session when done
+	session.close()
+	return mappings
+
 
 
 @bot.event
 async def on_ready():
 	logger.info(f'{bot.user} has connected to Discord!')
 	post_schedule_update_notifications.start()
+	post_url_alerts.start()
 
 
 @bot.command()
@@ -115,6 +172,31 @@ async def subscribe(ctx, school_id, notification_threshold, subscription_name=""
 	session.commit()
 
 	await ctx.send(f'Subscribed to {school_id} ({subscription_name}) with notifications {str(notification_threshold)} days in advance in the current channel.')
+
+
+@bot.command()
+@commands.has_permissions(administrator = True)
+async def subscribe_alert(ctx, url, url_type, subscription_name=""):
+	session = Session()
+
+	session.add(WatchedURLs(url=url, url_type=url_type, subscription_name=subscription_name, channel_id = ctx.channel.id ))
+	session.commit()
+
+	await ctx.send(f'Subscribed to changes for url "{url}" of type {url_type} ({subscription_name}) in the current channel.')
+
+@bot.command()
+@commands.has_permissions(administrator = True)
+async def unsubscribe_alert(ctx, subscription_name):
+	session = Session()
+
+	result = session.query(WatchedURLs).filter_by(subscription_name=subscription_name).first()
+	logger.info(result)
+	session.delete(result)
+	session.commit()
+	# close the session when done
+	session.close()
+
+	await ctx.send(f'Deleted {result.url} ({result.subscription_name}) subscription')
 
 
 @bot.command()

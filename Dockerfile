@@ -7,6 +7,9 @@ COPY Pipfile.lock .
 
 RUN pipenv install
 
+COPY alembic.ini ./alembic.ini
+COPY migrations/ ./migrations/
+
 COPY *.py ./
 
 ENTRYPOINT pipenv run python3 schedule-end-bot.py

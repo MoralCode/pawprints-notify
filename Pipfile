@@ -8,6 +8,8 @@ requests = "*"
 "discord.py" = "*"
 python-dotenv = "*"
 sqlalchemy = "*"
+beautifulsoup4 = "*"
+alembic = "*"
 
 [dev-packages]
 
