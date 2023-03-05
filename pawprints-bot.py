@@ -116,7 +116,7 @@ async def _list(ctx):
 	# close the session when done
 	session.close()
 	if mappings.count() > 0:
-		await ctx.send("\n".join([condense_subscription_item(mapping) for mapping in mappings]))
+		await ctx.send("this channel is subscribed to pawprints notifications")
 	else:
 		await ctx.send("No subscriptions")
 	
