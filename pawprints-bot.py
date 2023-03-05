@@ -14,6 +14,26 @@ from database import Session, GuildToSchool
 import asyncio
 import websockets
 
+from io import StringIO
+from html.parser import HTMLParser
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.strict = False
+        self.convert_charrefs= True
+        self.text = StringIO()
+    def handle_data(self, d):
+        self.text.write(d)
+    def get_data(self):
+        return self.text.getvalue()
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
@@ -46,10 +66,22 @@ async def receive_data():
 
 # Define a coroutine to send data to the Discord channel
 async def send_to_discord(data):
+	content = format_pawprint_post(data)
+
 	subscriptions = fetch_subscribed_channels()
 	for subscription in subscriptions:
 		channel = bot.get_channel(subscription.channel_id)
-		await channel.send(data)
+		await channel.send(content)
+
+def limit_length(string, lim):
+	if len(string) > lim:
+		return string[:lim]
+	return string
+
+def format_pawprint_post(data):
+	r = f"New Pawprint: **{data.title}**\n"
+	r += f"summary: **{limit_length(strip_tags(data.description), 300)}**\n"
+	r += f"Link: https://pawprints.rit.edu/?p={data.id}\n"
 
 @bot.event
 async def on_ready():
