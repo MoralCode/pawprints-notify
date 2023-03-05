@@ -45,7 +45,7 @@ async def receive_data():
 async def send_to_discord(data):
 	subscriptions = fetch_subscribed_channels()
 	for subscription in subscriptions:
-		channel = client.get_channel(subscription.channel_id)
+		channel = bot.get_channel(subscription.channel_id)
 		await channel.send(data)
 
 @bot.event
