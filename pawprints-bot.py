@@ -26,7 +26,7 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='/', intents=intents)
 
-WEBSOCKET_URL = 'your_websocket_url'
+WEBSOCKET_URL = 'wss://pawprints.rit.edu/ws/'
 
 # Define a coroutine to receive data from the WebSocket feed
 async def receive_data():
