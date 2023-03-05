@@ -10,7 +10,9 @@ import logging
 
 from bs4 import BeautifulSoup
 
-from database import Session, GuildToSchool, WatchedURLs
+from database import Session, GuildToSchool
+import asyncio
+import websockets
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -24,70 +26,11 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='/', intents=intents)
 
-@tasks.loop(hours=24)
-async def post_schedule_update_notifications():
-	session = Session()
-	logger.info("running cronjob")
-	
-	subscriptions = fetch_subscribed_school_ids()
-	for subscription in subscriptions:
-
-		expires = fetch_schedule_ending_date(subscription.school_id)
-		expires_in = days_to(expires)
-
-		if expires_in < subscription.notification_threshold:
-			# Make sure your guild cache is ready so the channel can be found via get_channel
-			#https://stackoverflow.com/a/66715493/
-			await bot.wait_until_ready()
-			message_channel = bot.get_channel(subscription.channel_id)
-			await message_channel.send(
-				f"**Schedules for {subscription.subscription_name} ({subscription.school_id}) will expire in {expires_in} days ({expires})**"
-				)
-		else:
-			logger.info(f"no schedule notifications needed for {subscription.subscription_name} ({subscription.school_id})")
-
-
-	# close the session when done
-	session.close()
-
-
-@post_schedule_update_notifications.before_loop
-async def before():
-    await bot.wait_until_ready()
-    logger.info("Finished waiting - bot ready")
-
-
-# http://stackoverflow.com/questions/8419564/ddg#8419655
-def days_between(d1, d2):
-    d1 = datetime.strptime(d1, "%Y-%m-%d")
-    d2 = datetime.strptime(d2, "%Y-%m-%d")
-    return (d2 - d1).days
-
-def days_to(date):
-	d1 = datetime.strptime(date, "%Y-%m-%d")
-	return (d1 - datetime.today()).days
-
-
-def fetch_schedule_ending_date(school_id):
-	response = requests.get("https://api.classclock.app/v0/bellschedules/" + school_id, headers={"Accept": "application/json"})
-	if response.status_code == 200:
-		response = response.json()
-		dates = []
-		data = response.get("data")
-		for schedule in data:
-			dates.extend(schedule.get("dates"))
-
-		dates.sort()
-		return dates[-1]
-
-
-
 
 @bot.event
 async def on_ready():
 	logger.info(f'{bot.user} has connected to Discord!')
-	post_schedule_update_notifications.start()
-	post_url_alerts.start()
+	
 
 
 @bot.command()
