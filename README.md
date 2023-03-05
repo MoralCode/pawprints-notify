@@ -3,7 +3,7 @@ This is a discord bot that can monitor a ClassClock school and provide notificat
 
 ## Usage
 Grant the bot access to your server:
-https://discord.com/api/oauth2/authorize?client_id=1076855616716406876&permissions=3072&scope=bot
+https://discord.com/api/oauth2/authorize?client_id=1081952183353876530&permissions=2147486720&scope=bot
 
 
 ## Development
