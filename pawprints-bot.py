@@ -53,14 +53,14 @@ async def on_ready():
 	logger.info(f'{bot.user} has connected to Discord!')
 	await receive_data()
 
-def fetch_subscribed_channels(guild_id = None):
+def fetch_subscribed_channels(channel_id = None):
 	# create a new session object to interact with the database
 	session = Session()
 
 	# retrieve the school ID for a given guild ID
 	mappings = session.query(GuildToSchool)
-	if guild_id:
-		mappings = mappings.filter_by(guild_id=guild_id)
+	if channel_id:
+		mappings = mappings.filter_by(channel_id=channel_id)
 
 	# close the session when done
 	session.close()
@@ -110,7 +110,7 @@ def condense_subscription_item(item: GuildToSchool):
 async def _list(ctx):
 	session = Session()
 
-	mappings = fetch_subscribed_school_ids(ctx.guild.id)
+	mappings = fetch_subscribed_channels(ctx.channel.id)
 	
 
 	# close the session when done
