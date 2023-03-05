@@ -140,13 +140,6 @@ async def unsubscribe(ctx):
 
 	await ctx.send(f'Unsubscribed from pawprints notifications in the current channel.')
 
-def condense_subscription_item(item: GuildToSchool):
-	if item:
-		return f'{item.subscription_name} ({item.school_id}) will notify {item.notification_threshold} days in advance of schedules ending'
-	else:
-		logger.info(f'No school ID found for guild ID {item.guild_id}.')
-		return ""
-
 
 @bot.command(name='list')
 @commands.has_permissions(administrator = True)
