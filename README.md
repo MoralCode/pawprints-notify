@@ -6,6 +6,9 @@ Grant the bot access to your server:
 https://discord.com/api/oauth2/authorize?client_id=1081952183353876530&permissions=2147486720&scope=bot
 
 
+To subscribe to a feed of pawprints, an administrator must run the command `/subscribe` in the channel that should be subscribed to
+
+
 ## Development
 
 To run the bot locally, you need to make a `.env` file containing the text `DISCORD_TOKEN=` followed by a discord bot token created from the discord developer portal.
