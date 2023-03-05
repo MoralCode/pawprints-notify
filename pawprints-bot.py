@@ -72,28 +72,28 @@ async def permission(ctx):
 
 @bot.command()
 @commands.has_permissions(administrator = True)
-async def subscribe(ctx, school_id, notification_threshold, subscription_name=""):
+async def subscribe(ctx):
 	session = Session()
 
-	session.add(GuildToSchool(guild_id=ctx.guild.id, school_id=school_id, notification_threshold=int(notification_threshold), subscription_name=subscription_name, channel_id = ctx.channel.id ))
+	session.add(GuildToSchool(guild_id=ctx.guild.id, channel_id = ctx.channel.id ))
 	session.commit()
 
-	await ctx.send(f'Subscribed to {school_id} ({subscription_name}) with notifications {str(notification_threshold)} days in advance in the current channel.')
+	await ctx.send(f'Subscribed to pawprints notifications in the current channel.')
 
 
 @bot.command()
 @commands.has_permissions(administrator = True)
-async def unsubscribe(ctx, subscription_name):
+async def unsubscribe(ctx):
 	session = Session()
 
-	result = session.query(GuildToSchool).filter_by(subscription_name=subscription_name).first()
+	result = session.query(GuildToSchool).filter_by(channel_id=ctx.channel.id).first()
 	logger.info(result)
 	session.delete(result)
 	session.commit()
 	# close the session when done
 	session.close()
 
-	await ctx.send(f'Deleted {result.school_id} ({result.subscription_name}) subscription')
+	await ctx.send(f'Unsubscribed from pawprints notifications in the current channel.')
 
 def condense_subscription_item(item: GuildToSchool):
 	if item:
