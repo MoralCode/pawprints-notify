@@ -69,7 +69,7 @@ def fetch_subscribed_channels(channel_id = None):
 @bot.command()
 @commands.has_permissions(administrator = True)
 async def permission(ctx):
-    await ctx.send('You have administrator access...')
+	await ctx.send('You have administrator access...')
 
 
 @bot.command()
