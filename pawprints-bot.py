@@ -30,9 +30,11 @@ class MLStripper(HTMLParser):
         return self.text.getvalue()
 
 def strip_tags(html):
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
+	s = MLStripper()
+	s.feed(html)
+	stripped = s.get_data()
+	stripped = stripped[1:-1]
+	return stripped
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
