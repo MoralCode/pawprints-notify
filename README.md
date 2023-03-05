@@ -13,3 +13,10 @@ To run the bot locally, you need to make a `.env` file containing the text `DISC
 Then you can build the docker container with `docker build -t <image name> .`. The database will generate on first run.
 
 To run the bot, you can use the command `docker run --rm --env-file .env -v$(pwd)/discord_school_mapping.db:/database/discord_school_mapping.db <image name>`. You may need to run `touch discord_school_mapping.db` first so the database file exists.
+
+
+### DB
+pipenv run python3 ./database.py
+pipenv run alembic stamp head
+
+
