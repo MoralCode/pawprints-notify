@@ -79,9 +79,13 @@ def limit_length(string, lim):
 	return string
 
 def format_pawprint_post(data):
-	r = f"New Pawprint: **{data.title}**\n"
-	r += f"summary: **{limit_length(strip_tags(data.description), 300)}**\n"
-	r += f"Link: https://pawprints.rit.edu/?p={data.id}\n"
+	title = data.get("title")
+	desc = data.get("description")
+	ident = data.get("id")
+	r = f"New Pawprint: **{title}**\n"
+	r += f"summary: {limit_length(strip_tags(desc), 300)}\n"
+	r += f"Link: https://pawprints.rit.edu/?p={ident}\n"
+	return r
 
 @bot.event
 async def on_ready():
