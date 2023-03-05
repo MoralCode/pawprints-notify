@@ -12,4 +12,4 @@ COPY migrations/ ./migrations/
 
 COPY *.py ./
 
-ENTRYPOINT pipenv run python3 schedule-end-bot.py
+ENTRYPOINT pipenv run python3 pawprints-bot.py
