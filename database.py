@@ -11,7 +11,7 @@ Base = declarative_base()
 class GuildToSchool(Base):
 	__tablename__ = 'guild_to_school'
 	guild_id = Column(Integer, primary_key=True)
-	channel_id = Column(Integer)
+	channel_id = Column(Integer, primary_key=True)
 
 
 if __name__ == "__main__":
