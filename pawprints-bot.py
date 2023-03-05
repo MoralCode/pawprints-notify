@@ -73,7 +73,9 @@ async def send_to_discord(data):
 	subscriptions = fetch_subscribed_channels()
 	for subscription in subscriptions:
 		channel = bot.get_channel(subscription.channel_id)
-		await channel.send(content)
+		# add some filtering. the dev bot may not be in every channel that the prod one is, if they share a database this could create errors
+		if channel:
+			await channel.send(content)
 
 def limit_length(string, lim):
 	if len(string) > lim:
