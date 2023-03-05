@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import logging
-
+import json
 from bs4 import BeautifulSoup
 
 from database import Session, GuildToSchool
@@ -37,7 +37,9 @@ async def receive_data():
 			# For example, you could parse the JSON data and extract relevant information
 			# Here, we'll just send the raw data to Discord
 
-			await send_to_discord(data)
+			data = json.loads(data)
+			if data.get("command") == "new-petition":
+				await send_to_discord(data)
 
 # Define a coroutine to send data to the Discord channel
 async def send_to_discord(data):
