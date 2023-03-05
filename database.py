@@ -11,10 +11,7 @@ Base = declarative_base()
 class GuildToSchool(Base):
 	__tablename__ = 'guild_to_school'
 	guild_id = Column(Integer, primary_key=True)
-	school_id = Column(String, primary_key=True)
 	channel_id = Column(Integer)
-	notification_threshold = Column(Integer)
-	subscription_name = Column(String)
 
 
 if __name__ == "__main__":
