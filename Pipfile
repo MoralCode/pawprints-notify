@@ -10,6 +10,7 @@ python-dotenv = "*"
 sqlalchemy = "*"
 beautifulsoup4 = "*"
 alembic = "*"
+websockets = "*"
 
 [dev-packages]
 
