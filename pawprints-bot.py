@@ -38,8 +38,11 @@ async def receive_data():
 			# Here, we'll just send the raw data to Discord
 
 			data = json.loads(data)
-			if data.get("command") == "new-petition":
-				await send_to_discord(data)
+			cmd = data.get("command")
+			if cmd:
+
+				if cmd == "new-petition":
+					await send_to_discord(data)
 
 # Define a coroutine to send data to the Discord channel
 async def send_to_discord(data):
