@@ -10,7 +10,6 @@ python-dotenv = "*"
 sqlalchemy = "*"
 beautifulsoup4 = "*"
 alembic = "*"
-websockets = "*"
 pawprints-api = {editable = true, path = "./../pawprints-api"}
 
 [dev-packages]

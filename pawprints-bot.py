@@ -11,8 +11,6 @@ import json
 from bs4 import BeautifulSoup
 
 from database import Session, GuildToSchool
-import asyncio
-import websockets
 from pawprints_api import PawPrints
 
 from io import StringIO
