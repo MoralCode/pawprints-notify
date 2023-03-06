@@ -65,7 +65,7 @@ async def receive_data():
 					# request the full data
 					# Send a WebSocket request
 					
-					petition_data = pawprints.get_petition(petition_id)
+					petition_data = await pawprints.get_petition(petition_id)
 
 					await send_to_discord(petition_data)
 	except Exception:
