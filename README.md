@@ -18,6 +18,9 @@ Then you can build the docker container with `docker build -t <image name> .`. T
 To run the bot, you can use the command `docker run --rm --env-file .env -v$(pwd)/discord_school_mapping.db:/database/discord_school_mapping.db <image name>`. You may need to create a databse file first with `pipenv install && pipenv run python3 ./database.py`.
 
 
+This bot depends on the pawprints-api library/repo. which it currently expects to be cloned side-by-side with.
+
+
 ### DB
 pipenv run python3 ./database.py
 pipenv run alembic stamp head

@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 from database import Session, GuildToSchool
 import asyncio
 import websockets
+from pawprints_api import PawPrints
 
 from io import StringIO
 from html.parser import HTMLParser
@@ -48,36 +49,34 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='/', intents=intents)
 
-WEBSOCKET_URL = 'wss://pawprints.rit.edu/ws/'
+pawprints = PawPrints()
 
 # Define a coroutine to receive data from the WebSocket feed
 async def receive_data():
-	async with websockets.connect(WEBSOCKET_URL) as websocket:
-		while True:
-			data = await websocket.recv()
-			# Process the data as needed
-			# For example, you could parse the JSON data and extract relevant information
-			# Here, we'll just send the raw data to Discord
 
-			data = json.loads(data)
+	await pawprints.connect()
+	try:
+		async for data in pawprints.listen():
+			# Handle the message as needed
 			cmd = data.get("command")
 			if cmd:
 
 				if cmd == "new-petition":
-					await send_to_discord(data)
 					petition_id = data.get("petition").get("id")
 
 					# request the full data
 					# Send a WebSocket request
-					request = {'command': 'get', 'id': petition_id}
-					logging.info(request)
-					await websocket.send(json.dumps(request))
-					# Receive and parse the response
-					response = await websocket.recv()
-					logging.info(response)
-					petition_data = json.loads(response).get("petition")
+					
+					petition_data = pawprints.get_petition(petition_id)
 
 					await send_to_discord(petition_data)
+			else:
+				# logging.info(data.get("petitions")[0])
+				await send_to_discord(data.get("petitions")[0])
+	except Exception:
+		print('Stopping...')
+		await api.disconnect()
+			
 
 # Define a coroutine to send data to the Discord channel
 async def send_to_discord(data):
