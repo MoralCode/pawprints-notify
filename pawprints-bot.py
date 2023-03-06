@@ -65,6 +65,19 @@ async def receive_data():
 
 				if cmd == "new-petition":
 					await send_to_discord(data)
+					petition_id = data.get("petition").get("id")
+
+					# request the full data
+					# Send a WebSocket request
+					request = {'command': 'get', 'id': petition_id}
+					logging.info(request)
+					await websocket.send(json.dumps(request))
+					# Receive and parse the response
+					response = await websocket.recv()
+					logging.info(response)
+					petition_data = json.loads(response).get("petition")
+
+					await send_to_discord(petition_data)
 
 # Define a coroutine to send data to the Discord channel
 async def send_to_discord(data):
