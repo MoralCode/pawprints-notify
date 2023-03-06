@@ -68,9 +68,6 @@ async def receive_data():
 					petition_data = pawprints.get_petition(petition_id)
 
 					await send_to_discord(petition_data)
-			else:
-				# logging.info(data.get("petitions")[0])
-				await send_to_discord(data.get("petitions")[0])
 	except Exception:
 		print('Stopping...')
 		await api.disconnect()
