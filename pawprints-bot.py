@@ -70,7 +70,7 @@ async def receive_data():
 					await send_to_discord(petition_data)
 	except Exception:
 		print('Stopping...')
-		await api.disconnect()
+		await pawprints.disconnect()
 			
 
 # Define a coroutine to send data to the Discord channel
