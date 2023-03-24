@@ -17,10 +17,15 @@ from pawprints_api import PawPrints
 from helpers import strip_tags
 
 import traceback
+import csv
+from pathlib import Path
+import datetime
 
 
 load_dotenv()
+
 TOKEN = os.getenv('DISCORD_TOKEN')
+SIGS_FILENAME="database/sigs.csv"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -56,6 +61,16 @@ async def receive_data():
 						logging.info(petition_data)
 						if petition_data:
 							await send_to_discord(petition_data)
+
+				elif cmd == "update-sigs":
+					file_exists = Path(SIGS_FILENAME).exists()
+					with open(SIGS_FILENAME, 'a' if file_exists else 'a', newline='') as csvfile:
+						fieldnames = ['timestamp', 'sigs', 'petition_id']
+						writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+						if not file_exists:
+							writer.writeheader()
+						writer.writerow({'timestamp': (datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)).total_seconds(), 'sigs': data["sigs"], 'petition_id': data["petition_id"]})
 	except Exception as e:
 		logger.info('Stopping...')
 		logger.error(e)
