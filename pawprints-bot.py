@@ -11,6 +11,8 @@ import json
 from bs4 import BeautifulSoup
 
 from database import Session, GuildToSchool
+import logging
+
 from pawprints_api import PawPrints
 
 from io import StringIO
@@ -57,7 +59,9 @@ async def receive_data():
 		async for data in pawprints.listen():
 			# Handle the message as needed
 			cmd = data.get("command")
+			logging.info(cmd)
 			if cmd:
+				logging.info(data)
 
 				if cmd == "new-petition":
 					petition_id = data.get("petition").get("id")
