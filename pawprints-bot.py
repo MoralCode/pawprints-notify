@@ -21,7 +21,6 @@ import traceback
 import csv
 from pathlib import Path
 import datetime
-SIGS_FILENAME="sigs.csv"
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -43,7 +42,9 @@ def strip_tags(html):
 	return stripped
 
 load_dotenv()
+
 TOKEN = os.getenv('DISCORD_TOKEN')
+SIGS_FILENAME="sigs.csv"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
