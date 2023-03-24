@@ -44,7 +44,7 @@ def strip_tags(html):
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
-SIGS_FILENAME="sigs.csv"
+SIGS_FILENAME="database/sigs.csv"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
