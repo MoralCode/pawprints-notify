@@ -14,29 +14,10 @@ from database import Session, GuildToSchool
 import logging
 
 from pawprints_api import PawPrints
+from helpers import strip_tags
 
-from io import StringIO
-from html.parser import HTMLParser
 import traceback
 
-class MLStripper(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.reset()
-        self.strict = False
-        self.convert_charrefs= True
-        self.text = StringIO()
-    def handle_data(self, d):
-        self.text.write(d)
-    def get_data(self):
-        return self.text.getvalue()
-
-def strip_tags(html):
-	s = MLStripper()
-	s.feed(html)
-	stripped = s.get_data()
-	stripped = stripped[1:-1]
-	return stripped
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
