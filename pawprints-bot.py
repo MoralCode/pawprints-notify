@@ -17,6 +17,7 @@ from pawprints_api import PawPrints
 
 from io import StringIO
 from html.parser import HTMLParser
+import traceback
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -64,16 +65,21 @@ async def receive_data():
 				logging.info(data)
 
 				if cmd == "new-petition":
-					petition_id = data.get("petition").get("id")
+					#TODO make sure these keys exist (they should but to prevent errors)
+					petition_id = data["petition"]["id"]
 
 					# request the full data
 					# Send a WebSocket request
-					
-					petition_data = await pawprints.get_petition(petition_id)
+					if petition_id:
+						petition_data = await pawprints.get_petition(petition_id)
+						logging.info(petition_data)
+						if petition_data:
+							await send_to_discord(petition_data)
+	except Exception as e:
+		logger.info('Stopping...')
+		logger.error(e)
+		logger.error(traceback.format_exc())
 
-					await send_to_discord(petition_data)
-	except Exception:
-		print('Stopping...')
 		await pawprints.disconnect()
 			
 
