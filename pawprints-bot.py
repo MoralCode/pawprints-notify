@@ -52,7 +52,7 @@ async def receive_data():
 
 				if cmd == "new-petition":
 					#TODO make sure these keys exist (they should but to prevent errors)
-					petition_id = data["petition"]["id"]
+					petition_id = data["petition"]["petition_id"]
 
 					# request the full data
 					# Send a WebSocket request
